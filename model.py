@@ -1,5 +1,5 @@
 from keras.models import Sequential
-from keras.layers import Activation, LSTM
+from keras.layers import LSTM, TimeDistributed, Dense
 from keras.applications.inception_v3 import InceptionV3
 from params import *
 from keras.optimizers import Adam
@@ -8,9 +8,12 @@ from inputs import get_data
 
 
 model = Sequential([
-    InceptionV3(include_top=False, weights='imagenet', input_shape=(3, 299, 299), pooling='max'),
+    TimeDistributed(
+        InceptionV3(include_top=False, weights='imagenet', input_shape=(SEQ_LENGTH, 3, 299, 299), pooling='max'),
+        input_shape=(SEQ_LENGTH, 3, 299, 299)
+    ),
     LSTM(HL_SIZE, activation='softplus'),
-    LSTM(N_CLASSES, activation='softmax')
+    Dense(N_CLASSES, activation='softmax')
 ])
 
 adam = Adam(lr=0.001, decay=0.0)
