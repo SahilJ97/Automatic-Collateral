@@ -16,7 +16,7 @@ model = Sequential([
     Dense(N_CLASSES, activation='softmax')
 ])
 
-adam = Adam(lr=0.001, decay=0.0)
+adam = Adam(lr=LR, decay=0.0)
 model.compile(loss='mean_squared_error', optimizer=adam)
 
 
