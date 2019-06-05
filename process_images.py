@@ -33,4 +33,12 @@ for dir in glob.glob('./Images/*/*/'):
 	    
 	    It's fine to change file names, just make sure the alphanumeric ordering of the original 
 	    file names is preserved by this script, as well as the directory names.
+	    
+	import SimpleITK as sitk
+	elastixImageFilter = sitk.ElastixImageFilter()
+	elastixImageFilter.SetFixedImage(sitk.ReadImage("fixedImage.nii")
+	elastixImageFilter.SetMovingImage(sitk.ReadImage("movingImage.nii")
+	elastixImageFilter.SetParameterMap(sitk.GetDefaultParameterMap("affine"))
+	elastixImageFilter.Execute()
+	sitk.WriteImage(elastixImageFilter.GetResultImage())
 	'''
