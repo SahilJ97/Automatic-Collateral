@@ -9,7 +9,7 @@ from inputs import get_data
 
 model = Sequential([
     TimeDistributed(
-        InceptionV3(include_top=False, weights='imagenet', input_shape=((299, 299, 3)), pooling='max'),
+        InceptionV3(include_top=False, weights='imagenet', input_shape=(299, 299, 3), pooling='max'),
         input_shape=(INPUT_SEQ_LENGTH, 299, 299, 3)
     ),
     LSTM(HL_SIZE, activation='softplus'),

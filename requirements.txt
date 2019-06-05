@@ -3,3 +3,5 @@ tensorflow
 keras
 matplotlib
 SimpleITK
+Pillow
+opencv-python
