@@ -1,12 +1,15 @@
 import glob
 import cv2
 import math
+import os
+import SimpleITK as sitk
 
 from params import *
 #from SimpleITK import Elastix, ReadImage, WriteImage
 
 #if __name__ == 'main':
 
+'''
 newsize = 299
 rootdir = './Images'
 for dir in glob.glob('./Images/*/*/'):
@@ -19,7 +22,27 @@ for dir in glob.glob('./Images/*/*/'):
 			y = math.floor((height - newsize)/2)                #should be 106
 			img_crop = img[y:y+newsize, x:x+newsize]     #copy is optional, crop should go from 106 to 405
 			cv2.imwrite(file, img_crop)
+'''
 
+for dir in glob.glob('./Images/*/*/'):
+	for subdir in glob.glob(dir + '/*'):
+		list = os.listdir(subdir)
+		number_files = len(list)
+		third = number_files//3
+		counter = 0
+		for file in glob.glob(subdir + '/*.jpg'):
+			elastixImageFilter = sitk.ElastixImageFilter()
+			elastixImageFilter.SetMovingImage(sitk.ReadImage(file))
+			if counter < third:
+				elastixImageFilter.SetFixedImage(sitk.ReadImage("./Images/Templates/1.jpg"))	
+			elif counter < 2*third:
+				elastixImageFilter.SetFixedImage(sitk.ReadImage("./Images/Templates/2.jpg"))
+			else:
+				elastixImageFilter.SetFixedImage(sitk.ReadImage("./Images/Templates/3.jpg"))
+			elastixImageFilter.SetParameterMap(sitk.GetDefaultParameterMap("affine"))
+			elastixImageFilter.Execute()
+			stik.WriteImage(elastixImageFilter.GetResultImage(), file)
+			counter += 1
 	'''
 	TODO:      
 	2.  Figure out a way to register each of the non-template images (i.e. not the images 
