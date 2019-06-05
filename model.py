@@ -1,3 +1,4 @@
+from keras.callbacks import ModelCheckpoint
 from keras.models import Sequential
 from keras.layers import LSTM, TimeDistributed, Dense
 from keras.applications.inception_v3 import InceptionV3
@@ -13,18 +14,18 @@ model = Sequential([
         input_shape=(INPUT_SEQ_LENGTH, 299, 299, 3)
     ),
     LSTM(HL_SIZE, activation='softplus'),
-    Dense(N_CLASSES, activation='softmax')
+    Dense(len(CLASS_INDICES), activation='softmax')
 ])
 
+checkpoint = ModelCheckpoint(MODEL_PATH, monitor='val_acc', verbose=1, save_best_only=True, mode='max')
 adam = Adam(lr=LR, decay=0.0)
-model.compile(loss='mean_squared_error', optimizer=adam, metrics=['accuracy'])
+model.compile(loss='mean_squared_error', optimizer=adam, metrics=['accuracy'], callbacks=[checkpoint])
 
 
 if __name__ == '__main__':
     train_X, train_Y, test_X, test_Y = get_data()
 
-    history = model.fit(train_X, train_Y, epochs=EPOCHS, batch_size=BATCH_SIZE)
-    model.save(MODEL_PATH)
+    history = model.fit(train_X, train_Y, epochs=EPOCHS, batch_size=BATCH_SIZE, shuffle=True)
 
     # summarize history for accuracy
     plt.plot(history.history['acc'])
