@@ -2,12 +2,18 @@ import glob
 import cv2
 import math
 import os
-import SimpleITK as sitk
+import pyelastix
+import imageio
+#import SimpleITK as sitk
 
 from params import *
 #from SimpleITK import Elastix, ReadImage, WriteImage
 
 #if __name__ == 'main':
+
+
+
+
 
 '''
 newsize = 299
@@ -23,6 +29,13 @@ for dir in glob.glob('./Images/*/*/'):
 			img_crop = img[y:y+newsize, x:x+newsize]     #copy is optional, crop should go from 106 to 405
 			cv2.imwrite(file, img_crop)
 '''
+template1 = imageio.imread('./Images/Templates/1.jpg')
+template2 = imageio.imread('./Images/Templates/2.jpg')
+template3 = imageio.imread('./Images/Templates/3.jpg')
+
+template1 = template1[:,:,1].astype('float32')
+template2 = template2[:,:,1].astype('float32')
+template3 = template3[:,:,1].astype('float32')
 
 for dir in glob.glob('./Images/*/*/'):
 	for subdir in glob.glob(dir + '/*'):
@@ -30,19 +43,23 @@ for dir in glob.glob('./Images/*/*/'):
 		number_files = len(list)
 		third = number_files//3
 		counter = 0
+
 		for file in glob.glob(subdir + '/*.jpg'):
-			elastixImageFilter = sitk.ElastixImageFilter()
-			elastixImageFilter.SetMovingImage(sitk.ReadImage(file))
+			print(file)
+			cur_image = imageio.imread(file)
+			cur_image = cur_image[:,:,1].astype('float32')
+			params = pyelastix.get_default_params(type='AFFINE')
+			params.NumberOfResolutions = 5
+			output_image = None
 			if counter < third:
-				elastixImageFilter.SetFixedImage(sitk.ReadImage("./Images/Templates/1.jpg"))	
+				output_image, field = pyelastix.register(cur_image, template1, params, exact_params=False, verbose=0)
 			elif counter < 2*third:
-				elastixImageFilter.SetFixedImage(sitk.ReadImage("./Images/Templates/2.jpg"))
+				output_image, field = pyelastix.register(cur_image, template2, params, exact_params=False, verbose=0)
 			else:
-				elastixImageFilter.SetFixedImage(sitk.ReadImage("./Images/Templates/3.jpg"))
-			elastixImageFilter.SetParameterMap(sitk.GetDefaultParameterMap("affine"))
-			elastixImageFilter.Execute()
-			stik.WriteImage(elastixImageFilter.GetResultImage(), file)
+				output_image, field = pyelastix.register(cur_image, template3, params, exact_params=False, verbose=0)
+			imageio.imwrite(file,output_image)
 			counter += 1
+	
 	'''
 	TODO:      
 	2.  Figure out a way to register each of the non-template images (i.e. not the images 
