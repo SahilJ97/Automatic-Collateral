@@ -17,15 +17,17 @@ model = Sequential([
     Dense(len(CLASS_INDICES), activation='softmax')
 ])
 
-checkpoint = ModelCheckpoint(MODEL_PATH, monitor='val_acc', verbose=1, save_best_only=True, mode='max')
+checkpoint = ModelCheckpoint(MODEL_PATH, monitor='val_acc', verbose=1, save_best_only=False, mode='max')
 adam = Adam(lr=LR, decay=0.0)
-model.compile(loss='mean_squared_error', optimizer=adam, metrics=['accuracy'], callbacks=[checkpoint])
+model.compile(loss='mean_squared_error', optimizer=adam, metrics=['accuracy'])
 
 
 if __name__ == '__main__':
-    train_X, train_Y, test_X, test_Y = get_data()
+    print('Loading data...')
+    X, Y = get_data()
+    print('Fitting model...')
 
-    history = model.fit(train_X, train_Y, epochs=EPOCHS, batch_size=BATCH_SIZE, shuffle=True)
+    history = model.fit(X, Y, validation_split=VAL_SPLIT, epochs=EPOCHS, batch_size=BATCH_SIZE, shuffle=True, callbacks=[checkpoint])
 
     # summarize history for accuracy
     plt.plot(history.history['acc'])
@@ -44,5 +46,3 @@ if __name__ == '__main__':
     plt.xlabel('epoch')
     plt.legend(['train', 'test'], loc='upper left')
     plt.show()
-
-    model.evaluate(test_X, test_Y)
