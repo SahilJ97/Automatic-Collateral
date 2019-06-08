@@ -13,8 +13,9 @@ from params import *
 #if __name__ == 'main':
 
 
-
-
+#
+## IF YOU'RE READING THIS THE PROCESSING WORKED
+#
 
 '''
 newsize = 299
