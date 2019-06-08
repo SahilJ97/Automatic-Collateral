@@ -16,10 +16,6 @@ with open("scores.csv", "r") as f:
         scores[row[0]] = {key: value for key, value in zip(headers, row[1:])}
 
 
-def rgb2gray(rgb):
-    return np.dot(rgb[...,:3], [0.2989, 0.5870, 0.1140])
-
-
 def zero_pad(raw_seq):
     seq = raw_seq
     n = INPUT_SEQ_LENGTH - len(seq)
@@ -54,7 +50,7 @@ def get_data():
         for subdir in glob.glob(item + '/*'):  # for each phase
             channel_seq = []
             for file in glob.glob(subdir + '/*.jpg'):
-                channel_seq.append(rgb2gray(imread(file)))
+                channel_seq.append(imread(file))
             data_point = np.append(data_point, zero_pad(channel_seq))
         x.append(np.reshape(data_point, (INPUT_SEQ_LENGTH, 299, 299, 3)))
 
