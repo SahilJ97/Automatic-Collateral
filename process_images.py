@@ -4,6 +4,7 @@ import math
 import os
 import pyelastix
 import imageio
+import threading
 #import SimpleITK as sitk
 
 from params import *
@@ -33,9 +34,23 @@ template1 = imageio.imread('./Images/Templates/1.jpg')
 template2 = imageio.imread('./Images/Templates/2.jpg')
 template3 = imageio.imread('./Images/Templates/3.jpg')
 
-template1 = template1[:,:,1].astype('float32')
-template2 = template2[:,:,1].astype('float32')
-template3 = template3[:,:,1].astype('float32')
+templates = [template1[:,:,1].astype('float32'), template2[:,:,1].astype('float32'), template3[:,:,1].astype('float32')]
+
+params = pyelastix.get_default_params(type='AFFINE')
+params.NumberOfResolutions = 2
+
+
+def register(arg1, arg2):
+	files = arg1
+	template = arg2
+	for file in files:
+		print(file)
+		cur_image = imageio.imread(file)
+		cur_image = cur_image[:,:,1].astype('float32')
+		output_image = None
+		output_image, field = pyelastix.register(cur_image, template, params, exact_params=False, verbose=0)
+		imageio.imwrite(file,output_image)
+
 
 for dir in glob.glob('./Images/*/*/'):
 	for subdir in glob.glob(dir + '/*'):
@@ -43,22 +58,23 @@ for dir in glob.glob('./Images/*/*/'):
 		number_files = len(list)
 		third = number_files//3
 		counter = 0
-
+		image_sets = [[], [], []]
 		for file in glob.glob(subdir + '/*.jpg'):
-			print(file)
-			cur_image = imageio.imread(file)
-			cur_image = cur_image[:,:,1].astype('float32')
-			params = pyelastix.get_default_params(type='AFFINE')
-			params.NumberOfResolutions = 5
-			output_image = None
 			if counter < third:
-				output_image, field = pyelastix.register(cur_image, template1, params, exact_params=False, verbose=0)
+				image_sets[0].append(file)
 			elif counter < 2*third:
-				output_image, field = pyelastix.register(cur_image, template2, params, exact_params=False, verbose=0)
+				image_sets[1].append(file)
 			else:
-				output_image, field = pyelastix.register(cur_image, template3, params, exact_params=False, verbose=0)
-			imageio.imwrite(file,output_image)
+				image_sets[2].append(file)
 			counter += 1
+		threads = []
+		for i in range(3):
+			x = threading.Thread(target=register, args=(image_sets[i], templates[i]))
+			threads.append(x)
+			x.start()
+		for index, thread in enumerate(threads):
+			thread.join()
+		
 	
 	'''
 	TODO:      
