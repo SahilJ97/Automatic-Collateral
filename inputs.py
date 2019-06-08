@@ -58,13 +58,7 @@ def get_data():
             data_point = np.append(data_point, zero_pad(channel_seq))
         x.append(np.reshape(data_point, (INPUT_SEQ_LENGTH, 299, 299, 3)))
 
-    # Shuffle
-    c = list(zip(x, y))
-    random.shuffle(c)
-    x, y = zip(*c)
-    train_X, test_X = np.array(x[EVAL_SET_SIZE:]), np.array(x[:EVAL_SET_SIZE])
-    train_Y, test_Y = np.array(y[EVAL_SET_SIZE:]), np.array(y[:EVAL_SET_SIZE])
-    return train_X, train_Y, test_X, test_Y
+    return np.array(x), np.array(y)
 
 if __name__ == '__main__':
     get_data()

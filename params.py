@@ -1,9 +1,9 @@
 HL_SIZE = 1  # Hidden layer size
 INPUT_SEQ_LENGTH = 30  # Length of input sequences after zero-padding is applied
-CLASS_INDICES = {3: 0, 4:1, 5:2}  # Our current dataset spans only three grades
+CLASS_INDICES = {3: 0, 4:1, 5:2}  # Our current dataset spans only three grades: 3, 4, and 5
 MODEL_PATH = './model.h5'
-EPOCHS = 15
+EPOCHS = 10
 LR = 5e-3  # Learning rate
 BATCH_SIZE = 6
 DATA_PATH = './Images/'
-EVAL_SET_SIZE = 10  # Note: At present, only 46 data points are available
+VAL_SPLIT = .2  # Note: At present, only 46 data points are available
